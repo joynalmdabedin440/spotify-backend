@@ -1,5 +1,5 @@
 
 async function createUser(req,res) {
-    const user = req.body.user 
+    const {username,email,password}= req.body 
     
 }
