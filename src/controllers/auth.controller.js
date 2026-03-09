@@ -118,18 +118,32 @@ async function loginUser(req, res) {
     }
 
     // const hashedPassword = await bcrypt.hash(password, 10)
-    const passwordMatch = await bcrypt.compare(password, user.password)
+    const isPasswordValid = await bcrypt.compare(password, user.password)
 
-    if (passwordMatch) {
-        return res.status(201).json({
-            msg: "login user successfully"
+    if (!isPasswordValid) {
+        return res.status(401).json({
+            msg: "invalid credential"
         })
     }
-    else {
-        return res.status(401).json({
-            msg: "Unauthorized User"
-        }) 
-    }
+
+    const token = await jwt.sign({
+        id: user._id,
+        role:user.role
+        
+    }, process.env.JWT_SECRET)
+    
+    res.cookie("token", token)
+    
+    res.status(200).json({
+        msg: "User logged in successfully",
+        user: {
+            id: user._id,
+            username: user.username,
+            email: user.email,
+            role:user.role
+        }
+    })
+    
 
 
 
