@@ -1,24 +1,21 @@
 const userModel = require("../models/user.model")
 
-const jwt = require('jsonwebtoken')
 const bcrypt = require("bcryptjs")
+const jwt = require("jsonwebtoken")
 
-async function createUser(req, res) {
 
-    const { username, email, password, role = 'user' } = req.body
+async function registerUser(req, res) {
+    const { username, email, password, role = "user" } = req.body
 
-    const isUserExist = await userModel.findOne({
+    const isUserAlreadyExist = await userModel.findOne({
         $or: [{ username }, { email }]
     })
+    // console.log(isUserAlreadyExist);
 
-    // efficient
-    // const isUserExist = await userModel.exists({
-    //     $or:[{username},{email}]
-    // })
 
-    if (isUserExist) {
-        res.status(409).json({
-            msg: "user already exist"
+    if (isUserAlreadyExist) {
+        return res.status(409).json({
+            msg: "User already exist!"
         })
     }
 
@@ -31,29 +28,113 @@ async function createUser(req, res) {
         password: hashedPassword
     })
 
-    const token = jwt.sign(({
-
+    const token = await jwt.sign({
         id: user._id,
         role: user.role
-
-    }), process.env.JWT_SECRET)
+    }, process.env.JWT_SECRET)
 
     res.cookie("token", token)
 
+
     res.status(201).json({
-        msg: "user Created successfully",
-        user:{
+        user: {
             id: user._id,
             username: user.username,
             email: user.email,
             role: user.role
-        }
-       
+        },
+        msg: "user created successfully"
     })
-
 
 
 
 }
 
-module.exports = { createUser }
+// async function createUser(req, res) {
+
+//     const { username, email, password, role = 'user' } = req.body
+
+//     const isUserExist = await userModel.findOne({
+//         $or: [{ username }, { email }]
+//     })
+
+//     // efficient
+//     // const isUserExist = await userModel.exists({
+//     //     $or:[{username},{email}]
+//     // })
+
+//     if (isUserExist) {
+//         res.status(409).json({
+//             msg: "user already exist"
+//         })
+//     }
+
+//     const hashedPassword = await bcrypt.hash(password, 10)
+
+//     const user = await userModel.create({
+//         username,
+//         email,
+//         role,
+//         password: hashedPassword
+//     })
+
+//     const token = jwt.sign(({
+
+//         id: user._id,
+//         role: user.role
+
+//     }), process.env.JWT_SECRET)
+
+//     res.cookie("token", token)
+
+//     res.status(201).json({
+//         msg: "user Created successfully",
+//         user:{
+//             id: user._id,
+//             username: user.username,
+//             email: user.email,
+//             role: user.role
+//         }
+
+//     })
+
+
+
+
+// }
+
+async function loginUser(req, res) {
+    const { username, email, password } = req.body
+
+    const user = await userModel.findOne({
+        $or: [{ username }, { email }]
+    })
+
+    if (!user) {
+        return res.status(401).json({
+            msg: "Unauthorized User"
+        })
+
+    }
+
+    // const hashedPassword = await bcrypt.hash(password, 10)
+    const passwordMatch = await bcrypt.compare(password, user.password)
+
+    if (passwordMatch) {
+        return res.status(201).json({
+            msg: "login user successfully"
+        })
+    }
+    else {
+        return res.status(401).json({
+            msg: "Unauthorized User"
+        }) 
+    }
+
+
+
+
+
+
+}
+module.exports = { registerUser, loginUser }
