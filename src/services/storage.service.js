@@ -1,4 +1,4 @@
-const imagekit = require("@imagekit/nodejs")
+const ImageKit = require("@imagekit/nodejs")
 
 const imagekit = new ImageKit({
     privateKey: `${process.env.IMAGEKIT_PRIVATE_KEY}`, // This is the default and can be omitted
@@ -6,10 +6,11 @@ const imagekit = new ImageKit({
     
 });
 
-async function uploadFile(buffer) {
+async function uploadFile(file) {
     const result = await imagekit.files.upload({
-        file: buffer.toString("base64"),
-        fileName:"music.mp3"
+        file,
+        fileName: "music_" + Date.now(),
+        folder:"spotify/music"
         
     })
 
