@@ -1,5 +1,6 @@
 const musicModel = require("../models/music.model")
 const uploadFile = require('../services/storage.service')
+const albumModel = require("../models/album.model")
 
 const jwt = require("jsonwebtoken")
 
@@ -116,14 +117,46 @@ async function createMusic(req, res) {
 // album controller
 async function createAlbum(req, res) {
     const token = req.cookies.token
+    const { title, musics } = req.body
     if (!token) {
-      
+
         return res.status(401).json({
-            msg:"Unauthorized User"
+            msg: "Unauthorized User"
         })
-    
-  }  
-    
+
+    }
+
+    try {
+        const decoded = await jwt.verify(token, process.env.JWT_SECRET)
+
+        if (decoded.role !== "artist") {
+            return res.status(403).json({
+                msg: "Forbidden error. User has no access to create album"
+            })
+        }
+
+        const album = await albumModel.create({
+            title,
+            musics,
+            artist: decoded.id
+
+        })
+
+        res.status(201).json({
+            msg: "Album created successfully",
+            album: {
+                title: album.title,
+                musics: album.musics,
+                artist: album.artist
+            }
+        })
+
+    } catch (error) {
+        return res.status(401).json({
+            msg: "Unauthorized User"
+        })
+    }
+
 }
 
 module.exports = { createMusic }
