@@ -150,4 +150,42 @@ async function createAlbum(req, res) {
 
 }
 
-module.exports = { createMusic, createAlbum }
+//singer dashboard
+
+async function singerDashboard(req,res) {
+    
+    const id = req.params.id 
+    
+
+    if (id !== req.user.id) {
+        return res.status(403).json({
+            msg:"Unauthorize user"
+        })
+    }
+
+    const musics = await musicModel.find({
+        artist:id
+    })
+    const albums = await albumModel.find({
+        artist:id
+    })
+
+    res.status(200).json({
+        msg: "music retrieved successfully",
+        musics: musics.map(music => ({
+            id: music._id,
+            title: music.title,
+            uri: music.uri
+        })),
+        albums: albums.map(album => ({
+            id: album._id,
+            title: album.title,
+            musics: album.musics
+        }))
+    })
+
+
+    
+}
+
+module.exports = { createMusic, createAlbum,singerDashboard }

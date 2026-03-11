@@ -14,6 +14,8 @@ const router = express.Router()
 
 
 router.post("/create-music",authMiddleware.authenticateArtist, upload.single("music"), musicController.createMusic)
-router.post("/create-album",authMiddleware.authenticateArtist,musicController.createAlbum)
+router.post("/create-album", authMiddleware.authenticateArtist, musicController.createAlbum)
+
+router.get("/singer-dashboard/:id", authMiddleware.authenticateArtist,musicController.singerDashboard)
 
 module.exports = router
