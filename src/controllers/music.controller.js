@@ -170,6 +170,9 @@ async function singerDashboard(req,res) {
         artist:id
     })
 
+    
+
+
     res.status(200).json({
         msg: "music retrieved successfully",
         musics: musics.map(music => ({
@@ -183,9 +186,17 @@ async function singerDashboard(req,res) {
             musics: album.musics
         }))
     })
-
-
-    
 }
 
-module.exports = { createMusic, createAlbum,singerDashboard }
+//get music for user
+
+async function getMusic(req,res) {
+    const musics = await musicModel.find().populate("artist", "name")   
+
+    res.status(200).json({
+        msg: "Music retrieved successfully",
+        musics
+    })
+}
+
+module.exports = { createMusic, createAlbum,singerDashboard, getMusic }
