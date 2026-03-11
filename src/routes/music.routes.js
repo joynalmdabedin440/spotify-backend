@@ -18,6 +18,6 @@ router.post("/create-album", authMiddleware.authenticateArtist, musicController.
 
 router.get("/singer-dashboard/:id", authMiddleware.authenticateArtist, musicController.singerDashboard)
 
-router.get("/get-music", musicController.getMusic)
+router.get("/", musicController.getMusic)
 
 module.exports = router

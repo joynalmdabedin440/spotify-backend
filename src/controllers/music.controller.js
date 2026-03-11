@@ -166,9 +166,7 @@ async function singerDashboard(req,res) {
     const musics = await musicModel.find({
         artist:id
     })
-    const albums = await albumModel.find({
-        artist:id
-    })
+    const albums = await albumModel.find().populate("musics").where("artist").equals(id)
 
     
 
@@ -191,7 +189,7 @@ async function singerDashboard(req,res) {
 //get music for user
 
 async function getMusic(req,res) {
-    const musics = await musicModel.find().populate("artist", "name")   
+    const musics = await musicModel.find().limit(2).populate("artist", "username email",)   
 
     res.status(200).json({
         msg: "Music retrieved successfully",
