@@ -188,8 +188,15 @@ async function singerDashboard(req,res) {
 
 //get music for user
 
-async function getMusic(req,res) {
-    const musics = await musicModel.find().limit(2).populate("artist", "username email",)   
+async function getMusic(req, res) {
+
+    const query =  musicModel.find().populate("artist", "username email",)
+    
+    if (!req.user) {
+        query.limit(2)
+    }
+       
+    const musics = await query   
 
     res.status(200).json({
         msg: "Music retrieved successfully",
