@@ -188,6 +188,7 @@ async function singerDashboard(req,res) {
 
 //get music for user
 
+
 async function getMusic(req, res) {
 
     const query =  musicModel.find().populate("artist", "username email",)
